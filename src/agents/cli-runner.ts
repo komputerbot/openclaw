@@ -7,6 +7,7 @@ import { shouldLogVerbose } from "../globals.js";
 import { isTruthyEnvValue } from "../infra/env.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { runCommandWithTimeout } from "../process/exec.js";
+import { stripReasoningTagsFromText } from "../shared/text/reasoning-tags.js";
 import { resolveUserPath } from "../utils.js";
 import { resolveSessionAgentIds } from "./agent-scope.js";
 import { makeBootstrapWarn, resolveBootstrapContextForRun } from "./bootstrap-files.js";
@@ -270,7 +271,8 @@ export async function runCliAgent(params: {
       return parsed ?? { text: stdout };
     });
 
-    const text = output.text?.trim();
+    const rawText = output.text?.trim();
+    const text = rawText ? stripReasoningTagsFromText(rawText) : undefined;
     const payloads = text ? [{ text }] : undefined;
 
     return {
